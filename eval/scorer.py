@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Score one submission against a frozen task, using the exact downstream protocol from the benchmark paper.
-"""
+Score one submission (a parquet of subject_id -> feature vector) against a
+frozen task, using the exact downstream protocol from the benchmark paper."""
+
 import argparse
 import sys
 import numpy as np
@@ -16,6 +17,10 @@ from sklearn.dummy import DummyClassifier, DummyRegressor
 
 SEEDS = [0, 1, 2, 3, 42]
 alphas = [0.01, 0.05, 0.1, 0.15, 0.25, 0.4, 0.6, 0.8, 1.0]
+
+
+
+# From the benchmark paper's pipeline
 
 def run_classification(X_dict, y, test_size=0.1, task_name="Classification"):
     print(f"\n{task_name}")
@@ -147,9 +152,20 @@ def load_aligned(features_path, labels_path, task, model_name=None):
     X = feats[feat_cols].to_numpy(dtype=float)
     y = labels[task].to_numpy()
 
+    # drop subjects with a missing label for THIS task (e.g. blank bmi);
+    # sex/age are complete so this is a no-op for them.
+    keep = ~pd.isna(y)
+    n_dropped = int((~keep).sum())
+    if n_dropped:
+        print(f"  dropped {n_dropped} subjects with missing '{task}' label")
+    X, y = X[keep], y[keep]
+    n_kept = int(keep.sum())
+    if n_kept == 0:
+        raise ValueError(f"no subjects have a '{task}' label")
+
     if model_name is None:
         model_name = feats.attrs.get("model_name", "submission")
-    return model_name, X, y, len(common)
+    return model_name, X, y, n_kept
 
 
 def score(features_path, labels_path, dataset, task, model_name=None):
