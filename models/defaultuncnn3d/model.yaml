@@ -5,3 +5,10 @@ description: Untrained 4-layer 3D CNN baseline (random init, seed 0)
 preprocessing: turboprep
 embedding_dim: 512
 architecture: Custom 4-layer 3D convolutional network, random initialization
+seed: 0
+datasets:
+  - NKI
+tasks:
+  - sex
+  - age
+  - bmi

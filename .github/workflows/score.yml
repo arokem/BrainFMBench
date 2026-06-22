@@ -1,7 +1,10 @@
-name: score-demo
+name: score
 
 on:
   push:
+    paths: ["models/**", "labels/**", "eval/**", "scripts/score_all.py"]
+  pull_request:
+    paths: ["models/**"]
   workflow_dispatch:
 
 jobs:
@@ -12,11 +15,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install numpy pandas scikit-learn scipy pyarrow
-      - name: Make synthetic submission
-        run: python scripts/make_synth.py
-      - name: Score it
+      - run: pip install numpy pandas scikit-learn scipy pyyaml pyarrow
+      - name: Score all models
         run: |
-          python eval/scorer.py --features synth_features.parquet \
-                                --labels synth_labels.csv \
-                                --dataset NKI --task sex
+          for d in models/*/; do
+            echo "=== $d ==="
+            python scripts/score_all.py "$d"
+          done

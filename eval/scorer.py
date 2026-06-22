@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-
-"""Score one submission (a parquet of subject_id -> feature vector) against a
-frozen task, using the exact downstream protocol from the benchmark paper."""
-
+"""
+Score one submission against a frozen task, using the exact downstream protocol from the benchmark paper.
+"""
 import argparse
 import sys
 import numpy as np
@@ -17,8 +16,6 @@ from sklearn.dummy import DummyClassifier, DummyRegressor
 
 SEEDS = [0, 1, 2, 3, 42]
 alphas = [0.01, 0.05, 0.1, 0.15, 0.25, 0.4, 0.6, 0.8, 1.0]
-
-# From the benchmark paper pipeline (do not edit: keeps scores identical)
 
 def run_classification(X_dict, y, test_size=0.1, task_name="Classification"):
     print(f"\n{task_name}")
@@ -117,13 +114,20 @@ def run_regression(X_dict, y, test_size=0.1, task_name="Regression"):
 
 # Thin wrapper: align one submission to the canonical manifest, then score
 
-TASK_TYPE = {"sex": "classification", "age": "regression"}
+TASK_TYPE = {"sex": "classification", "age": "regression", "bmi": "regression"}
 
 
-def load_aligned(features_path, labels_path, task):
-    """Load a submitted feature parquet and the label table, aligned by
-    subject_id to a single canonical order. Returns (model_name, X, y)."""
-    feats = pd.read_parquet(features_path)
+def _read_table(path):
+    """Read a features table as csv or parquet, by extension."""
+    if str(path).endswith(".csv"):
+        return pd.read_csv(path)
+    return pd.read_parquet(path)
+
+
+def load_aligned(features_path, labels_path, task, model_name=None):
+    """Load a submitted feature table (csv or parquet) and the label table,
+    aligned by subject_id to a single canonical order."""
+    feats = _read_table(features_path)
     labels = pd.read_csv(labels_path)
 
     if "subject_id" not in feats.columns:
@@ -143,12 +147,13 @@ def load_aligned(features_path, labels_path, task):
     X = feats[feat_cols].to_numpy(dtype=float)
     y = labels[task].to_numpy()
 
-    model_name = feats.attrs.get("model_name", "submission")
+    if model_name is None:
+        model_name = feats.attrs.get("model_name", "submission")
     return model_name, X, y, len(common)
 
 
-def score(features_path, labels_path, dataset, task):
-    model_name, X, y, n = load_aligned(features_path, labels_path, task)
+def score(features_path, labels_path, dataset, task, model_name=None):
+    model_name, X, y, n = load_aligned(features_path, labels_path, task, model_name)
     print(f"Scoring '{model_name}' on {dataset}/{task}: "
           f"{n} subjects, {X.shape[1]}-d features")
 
@@ -176,10 +181,11 @@ def main():
     p.add_argument("--labels", required=True, help="labels csv (subject_id + task column)")
     p.add_argument("--dataset", required=True, choices=["NKI", "HBN"])
     p.add_argument("--task", required=True, choices=list(TASK_TYPE.keys()))
+    p.add_argument("--model-name", default=None, help="name shown in results (else inferred)")
     args = p.parse_args()
 
     try:
-        row = score(args.features, args.labels, args.dataset, args.task)
+        row = score(args.features, args.labels, args.dataset, args.task, args.model_name)
     except Exception as e:
         print(f"SCORING FAILED: {e}")
         return 1
