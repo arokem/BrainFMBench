@@ -1,0 +1,29 @@
+[
+  {
+    "dataset": "NKI",
+    "task": "sex",
+    "model": "Default Untrained 3D CNN",
+    "test_acc_mean": 0.8466666666666667,
+    "test_acc_std": 0.027984041451579487,
+    "test_auc_mean": 0.9202857142857143,
+    "test_auc_std": 0.015138364113311908
+  },
+  {
+    "dataset": "NKI",
+    "task": "age",
+    "model": "Default Untrained 3D CNN",
+    "test_mae_mean": 10.003324945762575,
+    "test_mae_std": 0.4736028650463493,
+    "test_r2_mean": 0.5735995257679234,
+    "test_r2_std": 0.04622801610233896
+  },
+  {
+    "dataset": "NKI",
+    "task": "bmi",
+    "model": "Default Untrained 3D CNN",
+    "test_mae_mean": 3.99818615441374,
+    "test_mae_std": 0.2713152376375086,
+    "test_r2_mean": 0.24006395754685209,
+    "test_r2_std": 0.035885027550000816
+  }
+]
