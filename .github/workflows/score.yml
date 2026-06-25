@@ -2,16 +2,19 @@ name: score
 
 on:
   push:
-    paths: ["models/**", "labels/**", "eval/**", "scripts/score_all.py"]
-  pull_request:
-    paths: ["models/**"]
+    paths: ["models/**", "labels/**", "eval/**", "scripts/**"]
   workflow_dispatch:
+
+permissions:
+  contents: write          
 
 jobs:
   score:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: true    
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -22,3 +25,12 @@ jobs:
             echo "=== $d ==="
             python scripts/score_all.py "$d"
           done
+      - name: Regenerate leaderboard
+        run: python scripts/make_leaderboard.py
+      - name: Commit results + leaderboard
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add models/*/results.json LEADERBOARD.md
+          git diff --staged --quiet || git commit -m "Update results + leaderboard [skip ci]"
+          git push
