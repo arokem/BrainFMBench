@@ -1,0 +1,15 @@
+name: FS aparc
+authors:
+  - Encin, Arel
+submitted_by: Encin, Arel
+description: FreeSurfer aparc (Desikan-Killiany) thickness + surface area (anatomical baseline, not a learned model)
+preprocessing: freesurfer
+embedding_dim: 136
+architecture: FreeSurfer regionsurfacestats, aparc 68-region Thickness+SurfArea (68+68)
+datasets:
+  - NKI
+  - HBN
+tasks:
+  - sex
+  - age
+  - bmi

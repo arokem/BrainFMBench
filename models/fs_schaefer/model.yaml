@@ -1,0 +1,15 @@
+name: FS Schaefer
+authors:
+  - Encin, Arel
+submitted_by: Encin, Arel
+description: FreeSurfer Schaefer-400 surface area + thickness (anatomical baseline, not a learned model)
+preprocessing: freesurfer
+embedding_dim: 800
+architecture: FreeSurfer regionsurfacestats, Schaefer2018 400-parcel SurfArea+ThickAvg (400+400)
+datasets:
+  - NKI
+  - HBN
+tasks:
+  - sex
+  - age
+  - bmi

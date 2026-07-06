@@ -1,0 +1,18 @@
+name: BrainIAC
+authors:
+  - Tak, D., et al.
+submitted_by: Encin, Arel
+description: BrainIAC generalizable brain MRI foundation model (ViT CLS token)
+preprocessing: turboprep
+embedding_dim: 768
+architecture: MONAI ViT (96^3, patch 16), pretrained BrainIAC backbone; CLS-token embedding
+citation: >-
+  Tak, D., et al. A generalizable foundation model for analysis of human brain MRI.
+  Nature Neuroscience, pp. 1-12 (2026).
+datasets:
+  - NKI
+  - HBN
+tasks:
+  - sex
+  - age
+  - bmi
