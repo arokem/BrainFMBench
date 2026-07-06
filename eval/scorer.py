@@ -43,7 +43,7 @@ def run_classification(X_dict, y, test_size=0.1, task_name="Classification"):
                     continue
                 scaler = StandardScaler()
                 rf = RandomForestClassifier(n_estimators=200, max_depth=6, min_samples_split=5,
-                                            random_state=seed, n_jobs=1, max_features='sqrt',
+                                            random_state=seed, n_jobs=-1, max_features='sqrt',
                                             class_weight='balanced')
                 rf.fit(scaler.fit_transform(X[train_idx]), y[train_idx])
                 proba = rf.predict_proba(scaler.transform(X[val_idx]))[:, 1]
@@ -53,7 +53,7 @@ def run_classification(X_dict, y, test_size=0.1, task_name="Classification"):
             # ---- dots: held-out test for this seed ----
             scaler = StandardScaler()
             rf = RandomForestClassifier(n_estimators=200, max_depth=6, min_samples_split=5,
-                                        random_state=seed, n_jobs=1, max_features='sqrt',
+                                        random_state=seed, n_jobs=-1, max_features='sqrt',
                                         class_weight='balanced')
             rf.fit(scaler.fit_transform(X[cv_idx]), y[cv_idx])
             proba = rf.predict_proba(scaler.transform(X[test_idx]))[:, 1]
@@ -92,7 +92,7 @@ def run_regression(X_dict, y, test_size=0.1, task_name="Regression"):
                 train_idx, val_idx = cv_idx[train_rel], cv_idx[val_rel]
                 scaler = StandardScaler()
                 rf = RandomForestRegressor(n_estimators=200, max_depth=6, min_samples_split=5,
-                                           random_state=seed, n_jobs=1)
+                                           random_state=seed, n_jobs=-1)
                 rf.fit(scaler.fit_transform(X[train_idx]), y[train_idx])
                 pred = rf.predict(scaler.transform(X[val_idx]))
                 cv_mae.append(mean_absolute_error(y[val_idx], pred))
@@ -101,7 +101,7 @@ def run_regression(X_dict, y, test_size=0.1, task_name="Regression"):
             # ---- dots: held-out test for this seed ----
             scaler = StandardScaler()
             rf = RandomForestRegressor(n_estimators=200, max_depth=6, min_samples_split=5,
-                                       random_state=seed, n_jobs=1)
+                                       random_state=seed, n_jobs=-1)
             rf.fit(scaler.fit_transform(X[cv_idx]), y[cv_idx])
             pred = rf.predict(scaler.transform(X[test_idx]))
             test_mae.append(mean_absolute_error(y[test_idx], pred))
