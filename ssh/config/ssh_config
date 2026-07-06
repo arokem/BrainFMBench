@@ -1,0 +1,14 @@
+Host jumpserver
+    HostName 206.12.96.142
+    User rocky
+    IdentityFile ~/.ssh/openmribench_ci
+    IdentitiesOnly yes
+    StrictHostKeyChecking accept-new
+
+Host robot-rorqual
+    HostName robot.rorqual.alliancecan.ca
+    User arelbaha
+    ProxyJump jumpserver
+    IdentityFile ~/.ssh/openmribench_ci
+    IdentitiesOnly yes
+    StrictHostKeyChecking accept-new
