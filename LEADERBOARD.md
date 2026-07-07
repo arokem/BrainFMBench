@@ -1,7 +1,11 @@
 # OpenMRIBench Leaderboard
 
-Downstream probing of frozen features (Random Forest, 5-seed held-out test).
-Sex = balanced accuracy (higher is better); Age / BMI = MAE in years (lower is better).
+Downstream probing of frozen features (RandomForest, held-out test).
+Sex = balanced accuracy (higher is better); Age / BMI = MAE (lower is better).
+
+![Leaderboard boxplots](leaderboard_boxplots.png)
+
+_Boxes show 5-fold cross-validation across 5 seeds (25 values); overlaid points show held-out test results for the same 5 seeds._
 
 | Rank | Model | Dataset | Sex (acc) | Age (MAE) | BMI (MAE) |
 |-----:|-------|---------|-----------|-----------|-----------|
