@@ -1,0 +1,75 @@
+name: cluster-extract
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "models/**/extract.py"
+      - "models/**/weights.txt"
+      - "models/**/model.yaml"
+  schedule:
+    - cron: "0 */3 * * *"      
+  workflow_dispatch:            
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cluster-extract
+  cancel-in-progress: false
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install pyyaml
+
+      - name: Set up SSH (key + config + known_hosts)
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/openmribench_ci
+          chmod 600 ~/.ssh/openmribench_ci
+          cp ssh/config ~/.ssh/config
+          chmod 600 ~/.ssh/config
+          ssh-keyscan -H 206.12.96.142 >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Run cluster runner (reap / sow)
+        id: runner
+        run: python cluster/cluster_runner.py | tee runner.log
+        
+
+      - name: Detect reaped features
+        id: check
+        run: |
+          if grep -q "reaped::true" runner.log; then
+            echo "reaped=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "reaped=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Score newly reaped models
+        if: steps.check.outputs.reaped == 'true'
+        run: |
+          pip install scikit-learn==1.7.1 numpy==2.4.2 pandas==2.2.3 matplotlib
+          for d in models/*/; do
+            # only (re)score models that now have features but stale/no results
+            python scripts/score_all.py "$d" || true
+          done
+          python scripts/make_leaderboard.py
+
+      - name: Commit reaped features + results + leaderboard
+        if: steps.check.outputs.reaped == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add models/*/features/*.csv models/*/results.json LEADERBOARD.md leaderboard_boxplots.png
+          git diff --staged --quiet || git commit -m "Cluster: add extracted features + scores [skip ci]"
+          git push
