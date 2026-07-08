@@ -1,0 +1,6 @@
+# One direct-download URL per line for your checkpoint file(s).
+# Use HuggingFace (/resolve/), Zenodo, GitHub Releases, or an institutional raw link.
+# NOT Google Drive/Dropbox, and NOT /blob/ viewer pages.
+# This example uses no real weights, so this file is intentionally empty of URLs.
+# Example:
+# https://huggingface.co/your-username/your-model/resolve/main/checkpoint.pth

@@ -1,0 +1,15 @@
+name: Example Submission
+authors:
+  - Your Name
+submitted_by: Your Name
+description: Minimal example showing the submission format (intensity histogram, no real weights)
+preprocessing: turboprep
+embedding_dim: 32
+architecture: ResNet (example)
+datasets:
+  - NKI
+  - HBN
+tasks:
+  - sex
+  - age
+  - bmi
