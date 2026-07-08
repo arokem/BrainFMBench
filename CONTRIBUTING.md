@@ -1,6 +1,6 @@
-# Contributing a model to OpenMRIBench
+# Contributing a model to BrainFMBench
 
-OpenMRIBench evaluates **frozen features** from brain MRI models on 
+BrainFMBench evaluates **frozen features** from brain MRI models on 
 neuroimaging datasets (NKI, HBN) across sex classification and age / BMI
 regression. You submit your model; we run feature extraction on our cluster
 against preprocessed data (turboprep), then score the returned features.
