@@ -1,10 +1,8 @@
 # BrainFMBench
 
-A living benchmark for **brain MRI foundation models**. Contributors submit a
-model; its frozen features are extracted on neuroimaging datasets (HBN, NKI) and scored
-on downstream tasks; the leaderboard updates automatically.
-
-The evaluation follows a simple principle: extract frozen features, then probe them on downstream tasks (sex, age, BMI) with no fine-tuning, measuring how well a model's representations transfer.
+A living benchmark for **brain structural MRI foundation models**. Contributors
+submit a model; model is applied to MRI datasets to extract features; features are
+fed into downstream learners; the leaderboard updates automatically.
 
 ## Leaderboard
 
@@ -13,24 +11,24 @@ features (5-fold CV across 5 seeds for the box, held-out test for the points).
 
 ## Tasks & data
 
-Models are evaluated on two cohorts from the Reproducible Brain Charts (RBC)
+Models are evaluated on two datasets from the [Reproducible Brain Charts](https://reprobrainchart.github.io) (RBC)
 initiative:
 
 - **NKI** — Nathan Kline Institute Rockland Sample (~958 subjects)
 - **HBN** — Healthy Brain Network (~1000 subjects)
 
-across three tasks: **sex** classification (balanced accuracy) and **age** / **BMI**
-regression (MAE). Preprocessing is turboprep by default (cat12 also available).
+Models are evaluated across three tasks: **sex** classification (balanced accuracy) and **age** / **BMI**
+regression (Mean Average Error). Preprocessing is done with turboprep by default (cat12 also available).
 
 ## How it works
 
-BrainFMBench splits the work between the cluster and CI:
+BrainFMBench splits the work between a computing cluster and GitHub actions:
 
 ```
-  contributor PR                     Compute Canada (rorqual)          GitHub CI
+  contributor PR                     Compute Canada (rorqual)          GitHub Actions
   ─────────────                      ────────────────────────         ─────────
   model.yaml                                                          validate PR
-  extract.py        ── merge ──▶     extract frozen features    ──▶   score features
+  extract.py        ── merge ──▶     extract features    ──▶       score features
   weights.txt                        (on preprocessed data)               │
                                                                        leaderboard
                                                                        updates
@@ -38,11 +36,7 @@ BrainFMBench splits the work between the cluster and CI:
 
 - **Feature extraction runs on the cluster**, against preprocessed data. Only the resulting feature vectors come back.
 - **Scoring runs in CI**, publicly and reproducibly, so anyone can verify how a
-  leaderboard number was produced.
-
-The cluster is reached through a fixed-IP jump server and a constrained
-automation key (Compute Canada's supported automation-node path), so CI can
-submit and retrieve jobs.
+  leaderboard numbers were produced.
 
 ## Repository layout
 
