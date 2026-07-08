@@ -54,7 +54,7 @@ def download_weights(weights_txt, dest_dir):
         urllib.request.urlretrieve(url, out)
         saved.append(out)
     if not saved:
-        raise RuntimeError(f"{weights_txt} lists no usable URLs")
+        print(f"    note: {weights_txt} lists no URLs (weightless submission) -- ok")
     return saved
 
 
