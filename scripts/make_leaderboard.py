@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-"""
-Regenerate LEADERBOARD.md (table) AND leaderboard_boxplots.png from every
-models/*/results.json."""
 
 import glob
 import json
@@ -104,10 +101,32 @@ def dummy_baseline(dataset, task, is_cls):
     return float(np.mean(vals))
 
 
-def _collect_group(table, dataset, box_key, dot_key, task):
+
+import matplotlib.cm as _cm
+import matplotlib.colors as _mcolors
+
+# All models present across results (known keep paper colors; new ones get
+# auto-assigned distinct colors + appended to the order, so a contributor's
+# model always appears in the figure and legend).
+def _all_models_in(table):
+    return {m for (m, _ds) in table.keys()}
+
+def _order_and_colors(table):
+    present = _all_models_in(table)
+    known = [m for m in MODEL_ORDER if m in present]
+    unknown = sorted(m for m in present if m not in MODEL_COLORS)
+    colors = dict(MODEL_COLORS)
+    if unknown:
+        cmap = matplotlib.colormaps["tab20"]
+        for i, m in enumerate(unknown):
+            colors[m] = _mcolors.to_hex(cmap(i % 20))
+    return known + unknown, colors
+
+
+def _collect_group(table, dataset, box_key, dot_key, task, order, colors):
     positions, box_data, box_colors, heldout_data, xpos, xlbl = [], [], [], [], [], []
     pos = 1
-    for m in MODEL_ORDER:
+    for m in order:
         row = table.get((m, dataset), {}).get(task)
         if not row:
             continue
@@ -116,9 +135,9 @@ def _collect_group(table, dataset, box_key, dot_key, task):
             continue
         hvals = row.get(dot_key) or []
         positions.append(pos); box_data.append(np.asarray(vals, float))
-        box_colors.append(MODEL_COLORS[m])
+        box_colors.append(colors[m])
         heldout_data.append(np.asarray(hvals, float))
-        xpos.append(pos); xlbl.append(DISPLAY_NAMES.get(m, m))
+        xpos.append(pos); xlbl.append(DISPLAY_NAMES.get(m, m.replace(' ', chr(10))))
         pos += 1
     return positions, box_data, box_colors, heldout_data, xpos, xlbl
 
@@ -153,6 +172,7 @@ def _draw_boxes_core(ax, positions, box_data, box_colors, heldout_data, xpos, xl
 
 
 def make_boxplots(table, out_png):
+    order, colors = _order_and_colors(table)
     fig = plt.figure(figsize=(16, 20))
     outer = GridSpec(3, 1, figure=fig, hspace=0.55,
                      left=0.10, right=0.97, top=0.94, bottom=0.12)
@@ -160,7 +180,7 @@ def make_boxplots(table, out_png):
     # shared sex y-limits
     _sex_vals, _sex_bvs = [], []
     for ds in DATASETS:
-        p, d, c, h, xp, xl = _collect_group(table, ds, "cv_acc_values", "test_acc_seeds", "sex")
+        p, d, c, h, xp, xl = _collect_group(table, ds, "cv_acc_values", "test_acc_seeds", "sex", order, colors)
         if d:
             _sex_vals.extend(np.concatenate(d))
             for hv in h:
@@ -183,7 +203,7 @@ def make_boxplots(table, out_png):
         inner = GridSpecFromSubplotSpec(1, len(DATASETS), subplot_spec=outer[row_i],
                                         wspace=0.05, width_ratios=wratios)
         for col_i, ds in enumerate(DATASETS):
-            p, d, c, h, xp, xl = _collect_group(table, ds, box_key, dot_key, task)
+            p, d, c, h, xp, xl = _collect_group(table, ds, box_key, dot_key, task, order, colors)
 
             if is_cls:
                 if col_i == 0:
@@ -225,7 +245,7 @@ def make_boxplots(table, out_png):
                 ax.tick_params(axis="y", labelsize=YTICK_FS,
                                left=True, labelleft=(not is_cls))
 
-    legend_handles = [mpatches.Patch(color=MODEL_COLORS[m], label=m) for m in MODEL_ORDER]
+    legend_handles = [mpatches.Patch(color=colors[m], label=m) for m in order]
     legend_handles += [
         Line2D([0], [0], color="#AAAAAA", linewidth=2, linestyle=":", label="Chance / dummy"),
         Line2D([0], [0], color="white", marker="o", markerfacecolor="gray",
@@ -268,7 +288,7 @@ def main():
         fig_ok = False
 
     lines = [
-        "# BrainFMBench Leaderboard", "",
+        "# OpenMRIBench Leaderboard", "",
         "Downstream probing of frozen features (RandomForest, held-out test).",
         "Sex = balanced accuracy (higher is better); Age / BMI = MAE (lower is better).", "",
     ]
@@ -279,17 +299,39 @@ def main():
             "overlaid points show held-out test results for the same 5 seeds._", "",
         ]
     lines += [
-        "| Rank | Model | Dataset | Sex (acc) | Age (MAE) | BMI (MAE) |",
-        "|-----:|-------|---------|-----------|-----------|-----------|",
+        "| Model | Dataset | Sex (acc) | Age (MAE) | BMI (MAE) |",
+        "|-------|---------|-----------|-----------|-----------|",
     ]
-    for i, d in enumerate(display, 1):
-        lines.append(f"| {i} | {d['model']} | {d['dataset']} | "
+    for d in display:
+        lines.append(f"| {d['model']} | {d['dataset']} | "
                      f"{d['sex_cell']} | {d['age_cell']} | {d['bmi_cell']} |")
     lines += ["", "_Auto-generated from `models/*/results.json`. Do not edit by hand._"]
 
     with open(os.path.join(REPO, "LEADERBOARD.md"), "w") as f:
         f.write("\n".join(lines))
     print(f"Wrote LEADERBOARD.md  ({len(display)} rows)")
+
+    # inject leaderboard (figure + table) into README.md between markers
+    readme = os.path.join(REPO, "README.md")
+    if os.path.isfile(readme):
+        blk = ["<!-- LEADERBOARD:START -->", ""]
+        if fig_ok:
+            blk += ["![Leaderboard boxplots](leaderboard_boxplots.png)", ""]
+        blk += ["| Model | Dataset | Sex (acc) | Age (MAE) | BMI (MAE) |",
+                "|-------|---------|-----------|-----------|-----------|"]
+        for d in display:
+            blk.append(f"| {d['model']} | {d['dataset']} | "
+                       f"{d['sex_cell']} | {d['age_cell']} | {d['bmi_cell']} |")
+        blk += ["", "_Ranking varies by task and dataset; there is no single overall winner._",
+                "", "<!-- LEADERBOARD:END -->"]
+        blk_text = "\n".join(blk)
+        c = open(readme).read()
+        a, b = "<!-- LEADERBOARD:START -->", "<!-- LEADERBOARD:END -->"
+        if a in c and b in c:
+            c = c.split(a)[0] + blk_text + c.split(b)[1]
+            open(readme, "w").write(c)
+            print(f"Injected leaderboard into {readme}")
+
     return 0
 
 
