@@ -18,7 +18,8 @@ initiative:
 - **HBN** — Healthy Brain Network (~1000 subjects)
 
 Models are evaluated across three tasks: **sex** classification (balanced accuracy) and **age** / **BMI**
-regression (Mean Average Error). Preprocessing is done with turboprep by default (cat12 also available).
+regression (Mean Average Error). Preprocessing is [turboprep](https://github.com/LemuelPuglisi/turboprep) by default, with
+[CAT12](https://neuro-jena.github.io/cat/) also available.
 
 ## How it works
 
