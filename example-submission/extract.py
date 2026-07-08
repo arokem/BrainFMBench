@@ -1,5 +1,5 @@
 """
-Example OpenMRIBench submission.
+Example BrainFMBench submission.
 
 Every submission must define ONE function with this exact signature:
 

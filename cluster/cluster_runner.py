@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-OpenMRIBench cluster runner (the async reap/sow orchestrator).
+BrainFMBench cluster runner (the async reap/sow orchestrator).
 """
 import os
 import sys

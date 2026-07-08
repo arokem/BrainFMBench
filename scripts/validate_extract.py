@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-PR validation gate for OpenMRIBench submissions.
+PR validation gate for BrainFMBench submissions.
 
 Runs on pull requests (cheap, on the GitHub runner, before any cluster job).
 For each models/<slug>/ that looks like a CODE submission (has extract.py), it:
