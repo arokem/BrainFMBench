@@ -1,4 +1,4 @@
-# OpenMRIBench
+# BrainFMBench
 
 A living benchmark for **brain MRI foundation models**. Contributors submit a
 model; its frozen features are extracted on neuroimaging datasets (HBN, NKI) and scored
@@ -24,7 +24,7 @@ regression (MAE). Preprocessing is turboprep by default (cat12 also available).
 
 ## How it works
 
-OpenMRIBench splits the work between the cluster and CI:
+BrainFMBench splits the work between the cluster and CI:
 
 ```
   contributor PR                     Compute Canada (rorqual)          GitHub CI
