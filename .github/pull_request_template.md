@@ -53,7 +53,4 @@ See CONTRIBUTING.md for the full guide.
 
 <!-- Anything to flag: unusual dependencies, expected runtime, special handling, etc. -->
 
-<!--
-Reminder: extraction runs on the maintainer's allocation, so a maintainer will
-review and approve this PR before any cluster job is launched. Thanks again!
--->
+> **Note:** Extraction runs on the maintainer's allocation, so a maintainer will review and approve this PR before any cluster job is launched.
