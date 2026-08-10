@@ -65,7 +65,7 @@ BrainFMBench splits the work between a computing cluster and GitHub actions:
 ```
 
 - **Feature extraction runs on the cluster**, against preprocessed data. Only the resulting feature vectors come back.
-- **Scoring runs in CI**, publicly and reproducibly, so anyone can verify how a
+- **Scoring runs in CI**, publicly and reproducibly, so anyone can verify how the
   leaderboard numbers were produced.
 
 ## Repository layout
@@ -89,6 +89,9 @@ adding `models/<your-model>/` with:
 - **`extract.py`** — defines `extract(input_dir, output_csv, weights_dir)`
 - **`weights.txt`** — direct-download URL(s) to your checkpoint(s) (HuggingFace,
   Zenodo, etc.)
+- **`requirements.txt`** — optional; pinned dependencies. If present, extraction
+  runs in an isolated virtualenv built from it rather than the shared cluster
+  environment.
 
 Copy [`example-submission/`](example-submission/) as a starting point. A PR
 validation check runs your `extract.py` on a synthetic volume before anything
