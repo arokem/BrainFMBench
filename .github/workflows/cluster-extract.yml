@@ -35,13 +35,23 @@ jobs:
       - run: pip install pyyaml
 
       - name: Set up SSH (key + config + known_hosts)
+        env:
+          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
-          mkdir -p ~/.ssh
-          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/openmribench_ci
+          set -euo pipefail
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+
+          test -n "$SSH_KEY" || { echo "::error::secret SSH_PRIVATE_KEY empty or unset"; exit 1; }
+
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/openmribench_ci
           chmod 600 ~/.ssh/openmribench_ci
           cp ssh/config ~/.ssh/config
           chmod 600 ~/.ssh/config
-          ssh-keyscan -H 206.12.96.142 >> ~/.ssh/known_hosts 2>/dev/null
+          cp ssh/known_hosts ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+          nc -z -w 5 206.12.103.105 22 \
+            || { echo "::error::jump server 206.12.103.105:22 unreachable from runner"; exit 1; }
 
       - name: Run cluster runner (reap / sow)
         id: runner

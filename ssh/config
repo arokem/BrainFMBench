@@ -1,9 +1,9 @@
 Host jumpserver
-    HostName 206.12.96.142
-    User rocky
+    HostName 206.12.103.105
+    User fedora
     IdentityFile ~/.ssh/openmribench_ci
     IdentitiesOnly yes
-    StrictHostKeyChecking accept-new
+    StrictHostKeyChecking yes
 
 Host robot-rorqual
     HostName robot.rorqual.alliancecan.ca
@@ -11,4 +11,4 @@ Host robot-rorqual
     ProxyJump jumpserver
     IdentityFile ~/.ssh/openmribench_ci
     IdentitiesOnly yes
-    StrictHostKeyChecking accept-new
+    StrictHostKeyChecking yes
