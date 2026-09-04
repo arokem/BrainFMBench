@@ -1,4 +1,4 @@
-[![bioRxiv](https://img.shields.io/badge/bioRxiv-2026.05.15.725427-b31b1b.svg)](https://www.biorxiv.org/content/10.64898/2026.05.15.725427v3)
+[![bioRxiv Preprint](https://img.shields.io/badge/bioRxiv-Preprint-b31b1b.svg)](https://www.biorxiv.org/content/10.64898/2026.05.15.725427v4)
 
 # BrainFMBench
 
