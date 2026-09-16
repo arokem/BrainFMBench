@@ -28,8 +28,6 @@ def extract(input_dir, output_csv, weights_dir, config_file=None):
 
     if config_file is None:
         config_file = _download_config(CONFIG_REMOTE)
-    # TODO: Download the config file locally, so it can be read into the next call:
-    ### XXX ###
 
     model, embed_dim = load_teacher_model_for_inference(
         config_file,
