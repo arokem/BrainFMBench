@@ -1,5 +1,6 @@
 ftfy
 omegaconf
+pyyaml
 regex
 scikit-learn
 submitit
@@ -10,4 +11,3 @@ torchvision
 monai==1.4.0
 boto3
 nibabel
-

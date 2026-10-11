@@ -122,6 +122,9 @@ def validate(model_dir):
     if not meta:
         return False
     ok = check_weights(model_dir, meta)
+    if meta.get("cluster_only"):
+        print("  (cluster_only: model code is not public, skipping synthetic run)")
+        return ok
     ok = check_extract_runs(model_dir, meta) and ok
     return ok
 
